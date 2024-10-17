@@ -24,7 +24,7 @@ public class Product extends BaseEntity {
 
     // 기본 Eager -> 기본으로 대표사진만 나오면 되므로.
     // cascadeType.All : Product
-    @OneToOne(mappedBy = "productDescription",
+    @OneToOne(mappedBy = "product",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
     private ProductDescription productDescription;

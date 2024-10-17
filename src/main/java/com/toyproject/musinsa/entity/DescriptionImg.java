@@ -27,7 +27,7 @@ public class DescriptionImg {
     // fk를 가지는 쪽이 @JoinColumn을 사용.
     // ManyToOne 은 @JoinColumn 써주기.
     @ManyToOne
-    @JoinColumn(name = "productDescription_id")
+    @JoinColumn(name = "PRODUCTDESCRIPTION_ID")
     private ProductDescription productDescription;
 
 

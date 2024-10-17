@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -26,7 +27,7 @@ public class ProductDescription {
     private String description;
 
     @OneToOne
-    @JoinColumn(name="Product_id")
+    @JoinColumn(name="product_id")
     private Product product;
 
 
@@ -34,6 +35,6 @@ public class ProductDescription {
     @OneToMany(mappedBy = "productDescription",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
-    private ArrayList<DescriptionImg> descriptionImgs = new ArrayList<>();
+    private List<DescriptionImg> descriptionImgs = new ArrayList<>();
 
 }
