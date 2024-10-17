@@ -24,8 +24,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+  # Access Token의 비밀키와 Refresh Token의 비밀키를 다르게 두기.
   jwt:
-    secret: zzzzzzzzzzzzzzzzzzzzzzsssssssssssssssssssssssssssddddddddddddddddddddddddddd
+    refresh-secret: zzzzzzzzzzzzzzzzzzzzzzsssssssssssssssssssssssssssddddddddddddddddddddddddddd
+    access-secret: asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf
+    token:
+      access-expiration-time: 900000 #15분
+      refresh-expiration-time: 604800000 #7일
 
   security:
     oauth2:
@@ -66,4 +71,16 @@ spring:
             user-name-attribute: response
 
           # Google - 구글은 provider가 자동으로 넣어짐.
+
+
+  session:
+    redis:
+      namespace: spring:session:asdf
+  data:
+    redis:
+      # (도커) 포트 12345로 연결하기 -p 12345:6379
+      host: 192.168.56.101
+      port: 12345
+  cache:
+    type: redis
 

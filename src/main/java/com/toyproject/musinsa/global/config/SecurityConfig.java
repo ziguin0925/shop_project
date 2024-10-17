@@ -6,11 +6,12 @@ import com.toyproject.musinsa.global.filter.LoginFilter;
 import com.toyproject.musinsa.global.util.JWTUtil;
 import com.toyproject.musinsa.service.jwt.CustomOAuth2UserService;
 import com.toyproject.musinsa.oauth2.CustomSuccessHandler;
-import com.toyproject.musinsa.repository.jwt.RefreshRepository;
+import com.toyproject.musinsa.service.jwt.JWTService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,7 +36,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
-    private final RefreshRepository refreshRepository;
+    private final JWTService jwtService;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -87,7 +88,8 @@ public class SecurityConfig {
         //경로별 인가 작업. -  uri 큰 범위가 아래로 가도록 해야함.
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/login","/join","/reissue").permitAll()
+                        .requestMatchers("/","/login","/join","/reissue","/set_redis","/get_redis","/sessiontest","/session_get","/jwttest").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/jwttest").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
@@ -95,13 +97,16 @@ public class SecurityConfig {
         ;
 
         // login 방식 disable
-        http
-                .formLogin((formLogin) -> formLogin
-                                .loginProcessingUrl("/login")
-                                .successHandler(customSuccessHandler)
-//                              .failureHandler()
-                                .permitAll()
-                )
+        http.formLogin(AbstractHttpConfigurer::disable)
+
+        //나중에는 이거로 해서 url 변경도 하기. OAuth와 똑같이 핸들러 만들기. or 유저 부분 통합
+//        http
+//                .formLogin((formLogin) -> formLogin
+//                                .loginProcessingUrl("/login")
+//                                .successHandler(customSuccessHandler)
+////                              .failureHandler()
+//                                .permitAll()
+//                )
 
         // UsernamePasswordAuthenticationFilter를 통해 Login 처리
         ;
@@ -121,23 +126,24 @@ public class SecurityConfig {
         // At, Before, After
         http
                 // debug true 해서 보면 UsernamePasswordAuthenticationFilter 자리에 LoginFilter가 들어감.
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class) //
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtService), UsernamePasswordAuthenticationFilter.class) //
         ;
 
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // LoginFilter 앞에다가 JWT필터를 넣어줌.
                 //DB에 저장하고 있는 Refresh 토큰 삭제
                 //Refresh 토큰 쿠키 null로 변경
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+                .addFilterBefore(new CustomLogoutFilter(jwtService), LogoutFilter.class);
         ;
 
         // Session 설정.
         // JWT를 통한 인증/인가를 위해서 세션을 Stateless 상태로 설정하는 것이 중요하다고 함. -> 서버측에서 메모리에 저장 x
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 중요.
-                )
-        ;
+
+//        http
+//                .sessionManagement((session) -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 중요.
+//                )
+//        ;
 
         return http.build();
     }

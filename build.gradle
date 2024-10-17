@@ -49,8 +49,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-	// redis
+	// Spring Boot에서 redis를 사용하기 위한
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// Spring Session을 Redis에 저장하기 위한 의존성.
+	implementation 'org.springframework.session:spring-session-data-redis'
 }
 
 tasks.named('test') {

@@ -1,9 +1,7 @@
 package com.toyproject.musinsa.controller.jwt;
 
 import com.toyproject.musinsa.global.util.JWTUtil;
-import com.toyproject.musinsa.entity.RefreshEntity;
-import com.toyproject.musinsa.repository.jwt.RefreshRepository;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.toyproject.musinsa.service.jwt.JWTService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Date;
 
 @Controller
 @ResponseBody
@@ -22,65 +19,35 @@ import java.util.Date;
 public class JWTController {
 
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final JWTService jwtService;
 
     // Refresh Rotate
+    // Access 토큰이 만료될 때 Refresh 도 같이 교환
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
+        String newRefresh = null;
+
         //get refresh token
-        String refresh = null;
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
 
-            if (cookie.getName().equals("refresh")) {
-
-                refresh = cookie.getValue();
-            }
+        // 유효한 Refresh Token인지 확인 및 새로운 Refresh토큰 발급.
+        try{
+            newRefresh = jwtService.recreateRefreshToken(cookies);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        if (refresh == null) {
+        String newAccess = null;
 
-            //response status code
-            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
+        String access= request.getHeader("access");
+
+        //현재 Access Token 변경 감지 및 새로운 Access토큰 발급.
+        try{
+            newAccess = jwtService.recreateAccessToken(access);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        //expired check
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-
-            //response status code
-            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
-        }
-
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
-
-        if (!category.equals("refresh")) {
-
-            //response status code
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
-        }
-
-        //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
-        if (!isExist) {
-
-            //response body
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
-        }
-
-        String username = jwtUtil.getUsername(refresh);
-        String role = jwtUtil.getRole(refresh);
-
-        //make new JWT
-        String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
-
-        //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
-        refreshRepository.deleteByRefresh(refresh);
-        addRefreshEntity(username, newRefresh, 86400000L);
 
         //response
         response.setHeader("access", newAccess);
@@ -99,15 +66,5 @@ public class JWTController {
 
         return cookie;
     }
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
 
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUsername(username);
-        refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
-
-        refreshRepository.save(refreshEntity);
-    }
 }

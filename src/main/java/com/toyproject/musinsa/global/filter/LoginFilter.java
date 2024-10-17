@@ -1,10 +1,8 @@
 package com.toyproject.musinsa.global.filter;
 
 
-import com.toyproject.musinsa.global.util.JWTUtil;
-import com.toyproject.musinsa.entity.RefreshEntity;
-import com.toyproject.musinsa.repository.jwt.RefreshRepository;
 import com.toyproject.musinsa.dto.user.CustomUserDetails;
+import com.toyproject.musinsa.service.jwt.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -20,7 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
 // 로그인 진행시 사용될 필터.("/login")
@@ -31,16 +28,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //UsernamePasswordAuthenticationFilter 는 FormLogin을 disable 시키면 동작을 하지 않기 때문에 커스텀으로 만들어 줘야함.
 
     private final AuthenticationManager authenticationManager;
-    private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final JWTService jwtService;
 
     //생성자 활용.
     // Security Config 에서 주입 해줘야 함.
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTService jwtService) {
 
         this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
+        this.jwtService = jwtService;
     }
 
 
@@ -53,10 +48,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
-//        //확인 용
-//        System.out.println("memberName: " + memberName);
-//        System.out.println("password: " + password);
-
         // Authentication Manager에게 던져주기 위해
         //스프링 시큐리티에서 username과 password를 검증하기 위해 Token에 담아야 함.
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password,null);
@@ -68,7 +59,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     }
 
-    // 로그인 성공 시 실행 될 메서드.
+    // 일반 로그인 성공 시 실행 될 메서드.
     // JWT 발급 해주기.
     // HS256 양방향 대칭키로 연습.(어느정도의 단방향도 가지고 있다고함.) -> 비대칭키로도 해보기.
     // 암호화 키는 application에 저장.
@@ -89,15 +80,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 토큰 생성
         // jwt 토큰에 비밀번호 등 절대 담지 말기. - 외부에서 볼 수 있음.
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L); //24시간
+        String access = jwtService.createAccessToken("access", username, role);
+        String refresh = jwtService.createRefreshToken("refresh", username, role); //24시간
 
 
-        //Refresh 토큰 저장
-        addRefreshEntity(username, refresh, 86400000L);
 
-
-        // jwt 헤더에 붙인 경우 24.09.15
+        // jwt 헤더에 붙인 경우 (24.09.15)
         // "Bearer " 띄어쓰기 필요.
         // RFC 7235 정의에 따라 인증 헤더 형태를 가져야함.
         // "Authorization : Bearer 인증토큰 string"
@@ -106,11 +94,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // Accese Header
         response.setHeader("access", access);
 
+        //쿠키 안에 공백 들어가 있으면 안됌.
         // Refresh Cookie
         response.addCookie(createCookie("refresh", refresh));
-
-        //cookie test
-        response.addCookie(createCookie("LoginFilter", "default Login"));
 
         response.setStatus(HttpStatus.OK.value());
     }
@@ -126,23 +112,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        //cookie.setSecure(true); // https
+        cookie.setMaxAge(24*60*60); // 24h
+//        cookie.setSecure(true); // https
         cookie.setPath("/"); // 프론트 서버 사용시.
         cookie.setHttpOnly(true); // js가 가져가지 못하게.
 
         return cookie;
-    }
-
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
-
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUsername(username);
-        refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
-
-        refreshRepository.save(refreshEntity);
     }
 }

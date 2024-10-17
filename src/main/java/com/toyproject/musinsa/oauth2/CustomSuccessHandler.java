@@ -1,10 +1,8 @@
 package com.toyproject.musinsa.oauth2;
 
 
-import com.toyproject.musinsa.global.util.JWTUtil;
-import com.toyproject.musinsa.entity.RefreshEntity;
-import com.toyproject.musinsa.repository.jwt.RefreshRepository;
 import com.toyproject.musinsa.dto.user.oauth2.CustomOAuth2User;
+import com.toyproject.musinsa.service.jwt.JWTService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
 
@@ -27,8 +24,7 @@ import java.util.Iterator;
 @RequiredArgsConstructor
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final JWTService jwtService;
 
 
     // OAuth2 login 성공시
@@ -49,13 +45,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 토큰 생성
 
         // jwt 토큰에 비밀번호 등 절대 담지 말기. - 외부에서 볼 수 있음.
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L); //24시간
-
-        //Refresh 토큰 저장
-        addRefreshEntity(username, refresh, 86400000L);
-
-
+        String access = jwtService.createAccessToken("access", username, role);
+        String refresh = jwtService.createRefreshToken("refresh", username, role); //24시간
 
         // Access Header
         response.setHeader("access", access);
@@ -77,17 +68,4 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         return cookie;
     }
-
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
-
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUsername(username);
-        refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
-
-        refreshRepository.save(refreshEntity);
-    }
-
 }
