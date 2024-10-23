@@ -1,10 +1,8 @@
 package com.toyproject.musinsa.controller;
 
 import com.toyproject.musinsa.global.util.JWTUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +20,11 @@ public class TestController {
 
 
 
-    @Cacheable(value = "fruit")
+    @CachePut(cacheNames = "fruit", key = "#name")
     @GetMapping("/set_redis")
     public String test(@RequestParam String name) {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        ops.set("fruit", name);
 
-        return "setRedis";
+        return "aaaa";
     }
 
     @GetMapping("/get_redis")
@@ -38,28 +34,6 @@ public class TestController {
 
         return ops.get("fruit");
     }
-
-    @GetMapping("/sessiontest")
-    public String test3(HttpSession session, @RequestParam String name) {
-        System.out.println(name);
-        session.setAttribute("name", name);
-        return "sessiontest";
-    }
-
-    @GetMapping("/session_get")
-    public String test4(HttpSession session) {
-        return (String)session.getAttribute("name");
-    }
-
-
-    @GetMapping("/jwttest")
-    public String test5(HttpServletRequest request) {
-        String access = request.getHeader("access");
-
-        return jwtUtil.getCategory(access);
-
-    }
-
 
 
 }

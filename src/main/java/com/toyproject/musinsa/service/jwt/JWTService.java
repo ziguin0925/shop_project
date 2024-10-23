@@ -24,6 +24,7 @@ public class JWTService {
         String refresh = jwtUtil.createRefreshJwt(category, username, role);
 
         addRefreshEntity(username, refresh);
+
         return refresh;
     }
 
@@ -164,7 +165,11 @@ public class JWTService {
 
         // refresh Token은 redis에 16분 동안 상주하도록 하기 - AT 만료기간 15분
         ValueOperations<String,String> ops =redisTemplate.opsForValue();
-        ops.set(username, refresh);
-        redisTemplate.expire(username,30, TimeUnit.MINUTES);
+
+        //set시 expire 적용시키는 법
+        ops.set(username, refresh,30, TimeUnit.MINUTES);
+
+        // set 하고 나서 expire적용시키기.
+//        redisTemplate.expire(username,30, TimeUnit.MINUTES);
     }
 }
