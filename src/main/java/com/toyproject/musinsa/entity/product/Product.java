@@ -1,15 +1,20 @@
-package com.toyproject.musinsa.entity;
+package com.toyproject.musinsa.entity.product;
 
 import com.toyproject.musinsa.entity.base.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString(callSuper = true)
 public class Product extends BaseEntity {
 
     // 현재 사이트에서 상품을 구분하는 코드
@@ -43,8 +48,10 @@ public class Product extends BaseEntity {
 
     private String registerManager;
 
+
     private float starRating;
 
+    @ColumnDefault("244")
     private int viewCount;
 
     private int reviewCount;

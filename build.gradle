@@ -17,6 +17,12 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+
+	// Spring 기본 Logger는 logback이 내장되어있다. 모듈에서 제외 해주자.
+	all {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
+
 }
 
 repositories {
@@ -53,6 +59,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// Spring Session을 Redis에 저장하기 위한 의존성.
 	implementation 'org.springframework.session:spring-session-data-redis'
+
+
+	// log4j2 사용을 위한
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+	//  yml파일을 logger config로 사용하기 위하여 설치하였다. (Logger Config를 xml로 쓰려면 설치할 필요가 없다.)
+	implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.16.0'
 }
 
 tasks.named('test') {

@@ -88,17 +88,21 @@ public class SecurityConfig {
         //경로별 인가 작업. -  uri 큰 범위가 아래로 가도록 해야함.
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/login","/join","/reissue","/set_redis","/get_redis","/sessiontest","/session_get","/jwttest").permitAll()
+                        .requestMatchers("/","/loginfff","/join","/reissue","/set_redis","/get_redis","/sessiontest","/session_get","/jwttest").permitAll()
                         .requestMatchers(HttpMethod.GET,"/jwttest").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER") // ROLE_ADMIN 혹은 ROLE_USER 권한을 가진 사용자만 접근 허용
                         .anyRequest().authenticated()
                 )
         ;
 
         // login 방식 disable
-        http.formLogin(AbstractHttpConfigurer::disable)
+//        http.formLogin(AbstractHttpConfigurer::disable)
 
+        http.formLogin(formlogin ->
+               formlogin
+                .loginProcessingUrl("/loginfff")
+        )
         //나중에는 이거로 해서 url 변경도 하기. OAuth와 똑같이 핸들러 만들기. or 유저 부분 통합
 //        http
 //                .formLogin((formLogin) -> formLogin
@@ -126,7 +130,7 @@ public class SecurityConfig {
         // At, Before, After
         http
                 // debug true 해서 보면 UsernamePasswordAuthenticationFilter 자리에 LoginFilter가 들어감.
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtService), UsernamePasswordAuthenticationFilter.class) //
+                .addFilterAt(new LoginFilter("/loginfff",authenticationManager(authenticationConfiguration),jwtService), UsernamePasswordAuthenticationFilter.class) //
         ;
 
         http

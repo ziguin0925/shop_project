@@ -1,4 +1,4 @@
-package com.toyproject.musinsa.entity;
+package com.toyproject.musinsa.entity.product;
 
 
 import jakarta.persistence.*;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DescriptionImg {
+public class ProductDescriptionImg {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

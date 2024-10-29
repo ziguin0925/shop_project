@@ -23,6 +23,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true # 데이터 포맷 이쁘게 보기.
 
   # Access Token의 비밀키와 Refresh Token의 비밀키를 다르게 두기.
   jwt:
@@ -84,3 +85,6 @@ spring:
   cache:
     type: redis
 
+
+logging:
+  config: classpath:log4j2.yml

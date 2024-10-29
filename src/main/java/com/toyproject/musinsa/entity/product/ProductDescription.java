@@ -1,4 +1,4 @@
-package com.toyproject.musinsa.entity;
+package com.toyproject.musinsa.entity.product;
 
 
 import jakarta.persistence.*;
@@ -35,6 +35,6 @@ public class ProductDescription {
     @OneToMany(mappedBy = "productDescription",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
-    private List<DescriptionImg> descriptionImgs = new ArrayList<>();
+    private List<ProductDescriptionImg> descriptionImgs = new ArrayList<>();
 
 }

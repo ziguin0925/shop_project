@@ -1,0 +1,16 @@
+[INFO ] 2024-10-28 21:13:54.761 [Test worker][AbstractEntityManagerFactoryBean.java] LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[INFO ] 2024-10-28 21:13:55.573 [Test worker][InitializeUserDetailsBeanManagerConfigurer.java] InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
+[INFO ] 2024-10-28 21:13:55.644 [Test worker][WelcomePageHandlerMapping.java] WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+[WARN ] 2024-10-28 21:13:55.896 [Test worker][WebSecurity.java] WebSecurity - 
+
+********************************************************************
+**********        Security debugging is enabled.       *************
+**********    This may include sensitive information.  *************
+**********      Do not use in a production system!     *************
+********************************************************************
+
+
+[INFO ] 2024-10-28 21:13:56.262 [Test worker][StartupInfoLogger.java] ProductRepositoryTest - Started ProductRepositoryTest in 4.778 seconds (process running for 6.313)
+[INFO ] 2024-10-28 21:13:57.076 [SpringApplicationShutdownHook][AbstractEntityManagerFactoryBean.java] LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+[INFO ] 2024-10-28 21:13:57.078 [SpringApplicationShutdownHook][HikariDataSource.java] HikariDataSource - HikariPool-1 - Shutdown initiated...
+[INFO ] 2024-10-28 21:13:57.083 [SpringApplicationShutdownHook][HikariDataSource.java] HikariDataSource - HikariPool-1 - Shutdown completed.

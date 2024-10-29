@@ -32,8 +32,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     //생성자 활용.
     // Security Config 에서 주입 해줘야 함.
-    public LoginFilter(AuthenticationManager authenticationManager, JWTService jwtService) {
+    public LoginFilter(String defaultFilterUrl,AuthenticationManager authenticationManager, JWTService jwtService) {
 
+        setFilterProcessesUrl(defaultFilterUrl);
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
     }
