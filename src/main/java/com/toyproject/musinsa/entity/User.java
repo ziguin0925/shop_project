@@ -33,7 +33,4 @@ public class User {
 
     private String role;
 
-    @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date create;
 }

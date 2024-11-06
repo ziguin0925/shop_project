@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -54,31 +56,30 @@ public class SecurityConfig {
 
         http
                 .cors((cors) -> cors
-                        .configurationSource(new CorsConfigurationSource() {
-                            @Override
-                            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        .configurationSource(request -> {
 
-                                CorsConfiguration config = new CorsConfiguration();
+                            CorsConfiguration config = new CorsConfiguration();
 
-                                config.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 프론트엔드 서버.
-                                config.setAllowedMethods(Collections.singletonList("*")); // get, post, option등 모두 허용.
-                                config.setAllowCredentials(true); //
-                                config.setAllowedHeaders(Collections.singletonList("*")); // 허용 헤더
-                                config.setMaxAge(3600L); // 허용 시간.
+                            config.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 프론트엔드 서버.
+                            config.setAllowedMethods(Collections.singletonList("*")); // get, post, option등 모두 허용.
+                            config.setAllowCredentials(true); //
+                            config.setAllowedHeaders(Collections.singletonList("*")); // 허용 헤더
+                            config.setMaxAge(3600L); // 허용 시간.
 
 
-                                config.setExposedHeaders(Collections.singletonList("Authorization")); // 백엔드 서버에서 사용자 클라이언트 쪽으로 Authorization 보내주는거 허용.
-                                config.setExposedHeaders(Collections.singletonList("Set-Cookie")); // 쿠키 허용.
-                                return config;
-                            }
+                            config.setExposedHeaders(Collections.singletonList("Authorization")); // 백엔드 서버에서 사용자 클라이언트 쪽으로 Authorization 보내주는거 허용.
+                            config.setExposedHeaders(Collections.singletonList("Set-Cookie")); // 쿠키 허용.
+                            return config;
                         }))
         ;
 
         // JWT는 stateless 상태로 세션을 관리하기 때문에 방어가 많이 필요없음 -> disable.
         http
-                .csrf(AbstractHttpConfigurer::disable) // (auth) -> auth.disable(). 과 같음.
+                .csrf()
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                .csrf(AbstractHttpConfigurer::disable) // (auth) -> auth.disable(). 과 같음.
         ;
-
+        
 
         // http basic 인증 방식 disable
         http
@@ -88,7 +89,7 @@ public class SecurityConfig {
         //경로별 인가 작업. -  uri 큰 범위가 아래로 가도록 해야함.
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/loginfff","/join","/reissue","/set_redis","/get_redis","/sessiontest","/session_get","/jwttest").permitAll()
+                        .requestMatchers("/","/loginfff","/join","/reissue","/set_redis","/get_redis","/sessiontest","/session_get","/jwttest","/test").permitAll()
                         .requestMatchers(HttpMethod.GET,"/jwttest").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER") // ROLE_ADMIN 혹은 ROLE_USER 권한을 가진 사용자만 접근 허용

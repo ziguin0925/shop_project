@@ -1,5 +1,7 @@
 package com.toyproject.musinsa.controller;
 
+import com.toyproject.musinsa.entity.product.Product;
+import com.toyproject.musinsa.entity.product.ProductDescription;
 import com.toyproject.musinsa.global.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
@@ -33,6 +35,12 @@ public class TestController {
 
 
         return ops.get("fruit");
+    }
+
+    @GetMapping("/test")
+    public Product test3() {
+        return Product.builder().productCode("asdf").price(123).productDescription(new ProductDescription()).productName("나이키").build();
+
     }
 
 
