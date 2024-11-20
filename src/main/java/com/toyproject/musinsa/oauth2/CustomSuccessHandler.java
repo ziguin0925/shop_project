@@ -42,10 +42,13 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         GrantedAuthority authority = iterator.next();
         String role = authority.getAuthority();
 
+        //@AuthenticationPrincipal 에서 userId 사용할 수 있도록. customUserDetails 에 추가.
+        long userId = customOAuth2User.getUserId();
+
         // 토큰 생성
 
         // jwt 토큰에 비밀번호 등 절대 담지 말기. - 외부에서 볼 수 있음.
-        String access = jwtService.createAccessToken("access", username, role);
+        String access = jwtService.createAccessToken("access", username, role,userId);
         String refresh = jwtService.createRefreshToken("refresh", username, role); //24시간
 
         // Access Header

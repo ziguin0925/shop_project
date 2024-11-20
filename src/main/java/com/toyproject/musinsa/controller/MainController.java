@@ -1,9 +1,12 @@
 package com.toyproject.musinsa.controller;
 
 
+import com.toyproject.musinsa.dto.user.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,12 +19,16 @@ import java.util.Iterator;
 public class MainController {
 
     @GetMapping("/")
-    public String index(){
+    public String index(@AuthenticationPrincipal CustomUserDetails user){
 
         // JWTFilter를 통과한 뒤 세션 확인 -> JWTFilter를 통과하는 순간 일시적으로 요청이 끝날 때 까지 Session을 생성.
 
         // 해당 요청 사용자 이름 확인
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = user.getUsername();
+
+        System.out.println("username = " + username);
+        System.out.println("userId = "+ user.getUserId());
+
 
         //해당 요청 사용자의 role 확인
         Authentication authentications = SecurityContextHolder.getContext().getAuthentication();

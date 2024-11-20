@@ -87,8 +87,8 @@ public class JWTService {
         return newRefresh;
     }
 
-    public String createAccessToken(String category, String username, String role) {
-        String access = jwtUtil.createAccessJwt(category, username, role);
+    public String createAccessToken(String category, String username, String role, long userId) {
+        String access = jwtUtil.createAccessJwt(category, username, role, userId);
 
         return access;
     }
@@ -99,8 +99,9 @@ public class JWTService {
         //Access Token에는 더 많은 정보가 들어갈 수 있으므로 Refresh Token과 따로 둠.
         String username = jwtUtil.getUsername(access);
         String role = jwtUtil.getRole(access);
+        long userId = jwtUtil.getUserId(access);
 
-        return jwtUtil.createAccessJwt("access", username, role);
+        return jwtUtil.createAccessJwt("access", username, role, userId);
     }
 
 

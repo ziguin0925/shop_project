@@ -75,9 +75,9 @@ public class SecurityConfig {
 
         // JWT는 stateless 상태로 세션을 관리하기 때문에 방어가 많이 필요없음 -> disable.
         http
-                .csrf()
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                .csrf(AbstractHttpConfigurer::disable) // (auth) -> auth.disable(). 과 같음.
+//                .csrf()
+//                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrf(AbstractHttpConfigurer::disable) // (auth) -> auth.disable(). 과 같음.
         ;
         
 
@@ -144,11 +144,11 @@ public class SecurityConfig {
         // Session 설정.
         // JWT를 통한 인증/인가를 위해서 세션을 Stateless 상태로 설정하는 것이 중요하다고 함. -> 서버측에서 메모리에 저장 x
 
-//        http
-//                .sessionManagement((session) -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 중요.
-//                )
-//        ;
+        http
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 중요.
+                )
+        ;
 
         return http.build();
     }

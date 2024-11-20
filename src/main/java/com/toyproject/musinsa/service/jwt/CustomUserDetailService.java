@@ -29,13 +29,8 @@ public class CustomUserDetailService implements UserDetailsService {
         Optional<User> userData = userRepository.findByUsername(username);
         if (userData.isEmpty()) throw new UsernameNotFoundException("존재하지 않는 username 입니다.");
 
+        // CustomMemberDetails는 데이터를 넘겨주는  DTO에 해당하는거임.
+        return userData.map(CustomUserDetails::new).orElse(null);
 
-        if(userData.isPresent()){
-
-            // CustomMemberDetails는 데이터를 넘겨주는  DTO에 해당하는거임.
-            return new CustomUserDetails(userData.get());
-        }
-
-        return null;
     }
 }

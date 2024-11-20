@@ -67,6 +67,13 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
+    public Long getUserId(String token) {
+
+        SecretKey secretKey = verifyToken(token);
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId", Long.class);
+    }
+
     public Boolean isExpired(String token) {
 
         SecretKey secretKey = verifyToken(token);
@@ -114,12 +121,13 @@ public class JWTUtil {
                 .compact(); // 해당 토큰 compact
     }
 
-    public String createAccessJwt(String category, String username, String role) {
+    public String createAccessJwt(String category, String username, String role, long userId) {
 
         return Jwts.builder()
                 .claim("username", username) // 특정한 Key에 대한 데이터 삽입.
                 .claim("role", role)
                 .claim("category", category)
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis())) // 언제 발행 되었는지.
                 .expiration(new Date(System.currentTimeMillis() + refreshExpirationTime)) // 만료 기간.
                 .signWith(accessSecretKey) // SecretKey를 통해 암호화.

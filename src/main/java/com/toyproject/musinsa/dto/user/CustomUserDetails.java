@@ -45,6 +45,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getUsername();
     }
 
+    public long getUserId(){
+        return user.getId();
+    }
+
     //지금은 아래를 모두  막힘 없이 하기 위해 적절히 처리.
     @Override
     public boolean isAccountNonExpired() {

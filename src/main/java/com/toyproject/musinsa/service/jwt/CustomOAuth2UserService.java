@@ -74,6 +74,7 @@ public class CustomOAuth2UserService  extends DefaultOAuth2UserService {
 
 
             UserDTO userDTO = new UserDTO();
+            userDTO.setUserId(userEntity.getId());
             userDTO.setUsername(userEntity.getUsername());
             userDTO.setName(userEntity.getName());
             userDTO.setRole(userEntity.getRole());

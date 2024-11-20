@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -20,12 +21,14 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/join")
-    public String joinProcess(JoinDTO joinDTO) {
+    public String joinProcess(@RequestBody  JoinDTO joinDTO) {
 
         memberService.joinProcess(joinDTO);
         return "ok";
-
     }
+
+
+
 
 
     @GetMapping("/my")
